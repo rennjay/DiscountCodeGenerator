@@ -1,0 +1,1 @@
+﻿global using Services = DiscountCodeGeneratorService.Domain.Services;

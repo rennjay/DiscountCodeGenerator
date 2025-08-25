@@ -1,0 +1,56 @@
+syntax = "proto3";
+
+import "google/protobuf/timestamp.proto";
+
+option csharp_namespace = "DiscountCodeGeneratorService.Grpc.Services";
+
+package discountcode;
+
+
+service DiscountCodeGeneratorProtoService {
+  rpc GenerateDiscountCodes (GenerateDiscountCodeRequest) returns (GenerateDiscountCodeResponse);
+
+  rpc GetDiscountCodes (GetDiscountCodesRequest) returns (PaginatedDiscountCodesResponse);
+
+  rpc UseDiscountCode (UseDiscountCodeRequest) returns (UseDiscountCodeResponse);
+}
+
+message GenerateDiscountCodeRequest {
+  uint32 Count = 1;
+  uint32 Length = 2;
+}
+
+message GenerateDiscountCodeResponse {
+  bool Result = 1;
+}
+
+message DiscountCode {
+  string code = 1;
+  google.protobuf.Timestamp expirationTime = 2;
+  DiscountUsageInfo usageInfo = 3;
+}
+message DiscountUsageInfo {
+  bool isUsed = 1;
+  google.protobuf.Timestamp usedTime = 2;
+}
+
+message GetDiscountCodesRequest {
+	uint32 PageNumber = 1;
+	uint32 PageSize = 2;
+}
+
+message PaginatedDiscountCodesResponse {
+  repeated DiscountCode items = 1;
+  int32 totalCount = 2;
+  int32 pageNumber = 3;
+  int32 pageSize = 4;
+  int32 totalPages = 5;
+}
+
+message UseDiscountCodeRequest {
+  string Code = 1;
+}
+
+message UseDiscountCodeResponse {
+  uint32 Result = 1;
+}
