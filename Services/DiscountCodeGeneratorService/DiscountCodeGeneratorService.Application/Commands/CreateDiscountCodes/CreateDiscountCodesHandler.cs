@@ -5,9 +5,16 @@ public class CreateDiscountCodesHandler(IDiscountCodeService discountCodeGenerat
 {
     public async Task<CreateDiscountCodesResponse> Handle(CreateDiscountCodesCommand request, CancellationToken cancellationToken)
     {
-        var result = await discountCodeGeneratorService.GenerateDiscountCodesAsync(request.Count, request.Length, cancellationToken);
-        await discountCodeRepository.AddDiscountCodesAsync(result, cancellationToken);
+        try
+        {
+            var result = await discountCodeGeneratorService.GenerateDiscountCodesAsync(request.Count, request.Length, cancellationToken);
+            await discountCodeRepository.AddDiscountCodesAsync(result, cancellationToken);
 
-        return new CreateDiscountCodesResponse(result.Count() > 0);
+            return new CreateDiscountCodesResponse(result.Count() > 0);
+        }
+        catch (Exception)
+        {
+            return new CreateDiscountCodesResponse(false);
+        }
     }
 }
