@@ -1,3 +1,4 @@
+using DiscountCodeGeneratorService.Domain.Entities;
 using DiscountCodeGeneratorService.Domain.Exceptions;
 using DiscountCodeGeneratorService.Domain.Interfaces;
 using Moq;
@@ -36,5 +37,29 @@ public class DiscountCodeGeneratorServiceTests
         var result = await discountCodeGeneratorService.GenerateDiscountCodesAsync(count, codeLength, new CancellationToken());
         Assert.Equal(count, result.Count());
         Assert.Equal(result.Count(), result.Select(dc => dc.Code).Distinct().Count());
+    }
+
+    [Fact]
+    public async Task UseCode_WhenCalled_MarksCodeAsUsed()
+    {
+        var discountCodeGeneratorService = GetServiceUnderTest();
+        var code = new DiscountCode("TESTCODE", null);
+        var result = await discountCodeGeneratorService.UseCode(code, CancellationToken.None);
+
+        Assert.True(code.UsageInfo.IsUsed);
+        Assert.NotNull(code.UsageInfo.UsedTime);
+        Assert.Equal((byte)1, result);
+    }
+
+    [Fact]
+    public async Task UseCode_WhenCodeAlreadyExists_ThrowsException()
+    {
+        var discountCodeGeneratorService = GetServiceUnderTest();
+        var code = new DiscountCode("TESTCODE", null);
+
+        // Let's use the code first time
+        await discountCodeGeneratorService.UseCode(code, CancellationToken.None);
+
+        await Assert.ThrowsAsync<DiscountCodeAlreadyExistsException>(() => discountCodeGeneratorService.UseCode(code, CancellationToken.None));
     }
 }
