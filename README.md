@@ -74,11 +74,5 @@ dotnet test Tests/DiscountCodeGeneratorService.Domain.Tests
 
 ---
 
-## 🤝 Contributing
 
-PRs and issues welcome! Star ⭐ the repo if you find it useful.
-
----
-
-
-Made with ❤️, .NET, and tons of ☕️!
+Made with ❤️, .NET, and cups of ☕️!
