@@ -1,4 +1,6 @@
-﻿namespace DiscountCodeGeneratorService.Application.Commands.UseDiscountCode;
+﻿using DiscountCodeGeneratorService.Domain.Exceptions;
+
+namespace DiscountCodeGeneratorService.Application.Commands.UseDiscountCode;
 
 public record UseDiscountCodeCommandHandler(IDiscountCodeRepository discountCodeRepository,
     IDiscountCodeService discountCodeService) 
@@ -13,9 +15,16 @@ public record UseDiscountCodeCommandHandler(IDiscountCodeRepository discountCode
             return new UseDiscountCodeResponse(0);
         }
 
-        var result =  await discountCodeService.UseCode(discountCode, cancellationToken);
+        try
+        {
+            var result = await discountCodeService.UseCode(discountCode, cancellationToken);
 
+            return new UseDiscountCodeResponse(result);
+        }
+        catch (Exception)
+        {
+            return new UseDiscountCodeResponse(0);
+        }
 
-        return new UseDiscountCodeResponse(result);
     }
 }
