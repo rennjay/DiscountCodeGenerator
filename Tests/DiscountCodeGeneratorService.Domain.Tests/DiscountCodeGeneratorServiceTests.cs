@@ -1,3 +1,4 @@
+using DiscountCodeGeneratorService.Domain.Exceptions;
 using DiscountCodeGeneratorService.Domain.Interfaces;
 using Moq;
 namespace DiscountCodeGeneratorService.Domain.Tests;
@@ -11,11 +12,19 @@ public class DiscountCodeGeneratorServiceTests
     }
 
     [Fact]
-    public async Task GenerateCodesAsync_WhenCountOrCodeLengthIsInvalid_ThrowsArgumentException()
+    public async Task GenerateCodesAsync_WhenCountIsInvalid_ThrowsArgumentException()
     {
         var discountCodeGeneratorService = GetServiceUnderTest();
 
-        await Assert.ThrowsAsync<ArgumentException>(() => discountCodeGeneratorService.GenerateDiscountCodesAsync(0, 0, CancellationToken.None));
+        await Assert.ThrowsAsync<InvalidCountWhenGeneratingDiscountCodes>(() => discountCodeGeneratorService.GenerateDiscountCodesAsync(0, 7, CancellationToken.None));
+    }
+
+    [Fact]
+    public async Task GenerateCodesAsync_WhenCodeLengthIsInvalid_ThrowsArgumentException()
+    {
+        var discountCodeGeneratorService = GetServiceUnderTest();
+
+        await Assert.ThrowsAsync<InvalidCodeLengthWhenGeneratingDiscountCodes>(() => discountCodeGeneratorService.GenerateDiscountCodesAsync(100, 0, CancellationToken.None));
     }
 
     [Theory]

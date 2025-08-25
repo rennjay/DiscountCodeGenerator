@@ -1,4 +1,5 @@
 ﻿using DiscountCodeGeneratorService.Domain.Entities;
+using DiscountCodeGeneratorService.Domain.Exceptions;
 using DiscountCodeGeneratorService.Domain.Interfaces;
 using System.Collections.Concurrent;
 
@@ -14,10 +15,7 @@ public class DiscountCodeService(IDiscountCodeRepository discountCodeRepository)
     private const ushort CODE_GENERATION_BATCH_SIZE = 200;
     public async Task<IEnumerable<DiscountCode>> GenerateDiscountCodesAsync(ushort count, byte codeLength, CancellationToken cancellationToken)
     {
-        if (count <= 0 || count > 2000)
-        {
-            throw new ArgumentException("Count must be between 1 and 2000", nameof(count));
-        }
+        ValidateDiscountCodeParameters(count, codeLength);
 
         var batchId = Guid.NewGuid();
         var generatedCodes = new ConcurrentBag<DiscountCode>();
@@ -34,7 +32,7 @@ public class DiscountCodeService(IDiscountCodeRepository discountCodeRepository)
 
             var task = Task.Run(async () =>
             {
-                var codes = await GenerateUniqueDiscountCodesPerBatchAsync(generatedCodes,currentBatchSize, batchId, codeLength, cancellationToken);
+                var codes = await GenerateUniqueDiscountCodesPerBatchAsync(generatedCodes, currentBatchSize, batchId, codeLength, cancellationToken);
                 foreach (var code in codes)
                 {
                     generatedCodes.Add(code);
@@ -51,6 +49,19 @@ public class DiscountCodeService(IDiscountCodeRepository discountCodeRepository)
         var result = generatedCodes.Take(count).ToList();
 
         return result;
+    }
+
+    private void ValidateDiscountCodeParameters(ushort count, byte codeLength)
+    {
+        if (count <= 0 || count > 2000)
+        {
+            throw new InvalidCountWhenGeneratingDiscountCodes(count.ToString());
+        }
+
+        if (codeLength < 6 || codeLength > 12)
+        {
+            throw new InvalidCodeLengthWhenGeneratingDiscountCodes(codeLength.ToString());
+        }
     }
 
     private async Task<List<DiscountCode>> GenerateUniqueDiscountCodesPerBatchAsync(ConcurrentBag<DiscountCode> generatedCodes, int count, Guid batchId, byte codeLength, CancellationToken cancellationToken)
