@@ -1,4 +1,5 @@
-﻿using DiscountCodeGeneratorService.Domain.ValueObjects;
+﻿using DiscountCodeGeneratorService.Domain.Exceptions;
+using DiscountCodeGeneratorService.Domain.ValueObjects;
 
 namespace DiscountCodeGeneratorService.Domain.Entities;
 
@@ -22,7 +23,7 @@ public class DiscountCode
     {
         if (UsageInfo.IsUsed)
         {
-            throw new InvalidOperationException("Discount code is already used.");
+            throw new DiscountCodeAlreadyExistsException(Code);
         }
 
         UsageInfo = UsageInfo with { IsUsed = true, UsedTime = usedTime };
